@@ -21,10 +21,10 @@ Usage: altar [options] <url>
 
 Options:
 
-  -H, --html <file> Generate an HTML report
-  -j, --json <file> Generate a JSON report
-  -n, --no-color Disables color in reporting output
-  -h, --help Display this help
+  -h, --help         output usage information
+  -V, --version      output the version number
+  -H, --html <file>  generate an HTML report
+  -j, --json <file>  generate a JSON report
 ```
 
 ### Programmatic API
@@ -45,12 +45,12 @@ require("altar")
 var altar = require("altar");
 var report = altar.createReport("http://www.mysite.com/");
 
-report.on("image", function (image) {
-  console.log("Found an image:", image.url, image.altText, image.readText);
+report.on("init", function (images) {
+  console.log("Processing " + images.length + " images");
 });
 
-report.on("progress", function (currentIndex, total) {
-  console.log("Processed %s of %s images", currentIndex, total);
+report.on("image", function (image) {
+  console.log("Found an image:", image.url, image.altText, image.readText);
 });
 
 report.on("end", function (images) {
