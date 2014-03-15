@@ -4,6 +4,18 @@ Help determine accessibility issues with images by using the Tesseract OCR
 engine to read text in images and compare it to the `alt` attribute found in
 inline image elements.
 
+## Requirements
+
+- Tesseract 3.01
+
+## Installation
+
+Tesseract, the open source OCR engine used by Altar, is required.
+
+To install on OS X with Homebrew:
+
+    brew install tesseract --all-languages
+
 ## Usage
 
 ### Command-line Interface
