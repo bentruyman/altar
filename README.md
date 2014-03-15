@@ -1,4 +1,4 @@
-# Fireball
+# Altar
 
 Help determine accessibility issues with images by using the Tesseract OCR
 engine to read text in images and compare it to the `alt` attribute found in
