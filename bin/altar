@@ -1,0 +1,115 @@
+#!/usr/bin/env node
+
+var fs = require("fs");
+var path = require("path");
+
+var colors = require("colors");
+var jade = require("jade");
+var program = require("commander");
+var ProgressBar = require("progress");
+
+var altar = require("../");
+var Image = require("../lib/image");
+var pkg = require("../package");
+
+var colors = {};
+
+colors[Image.BAD] = "red";
+colors[Image.GOOD] = "green";
+colors[Image.UNDETERMINED] = "yellow";
+colors[Image.UNSUPPORTED] = "blue";
+
+program
+  .version(pkg.version)
+  .usage("[options] <url>")
+  .option("-H --html <file>", "generate an HTML report")
+  .option("-j --json <file>", "generate a JSON report")
+  .parse(process.argv);
+
+if (program.args.length === 0) {
+  program.help();
+}
+
+var bar;
+var images = [];
+var url = program.args[0];
+var report = altar.createReport(url);
+
+function createJsonReport() {
+  writeFile(program.json, JSON.stringify({ images: images }, null, 2));
+}
+
+function createHtmlReport() {
+  writeFile(program.html, jade.renderFile("template.jade", { images: images }));
+}
+
+function createOutputPath(providedPath) {
+  return path.resolve(process.cwd(), providedPath);
+}
+
+function writeFile(providedPath, contents) {
+  var outputPath = createOutputPath(providedPath);
+
+  console.log("Writing report out to: %s", outputPath);
+  fs.writeFileSync(outputPath, contents);
+}
+
+function handleError(err) {
+  var message;
+
+  switch(err.code) {
+    case "ENOTFOUND":
+    case "ECONNREFUSED":
+      console.log("Page could not be found");
+      break;
+    default:
+      console.error(err);
+  }
+
+  process.exit(1);
+}
+
+function log(image) {
+  console.log(image.state.toUpperCase()[colors[image.state]], image.url);
+}
+
+function createProgressBar(images) {
+  bar = new ProgressBar('Processing [:bar] :percent :etas', {
+    complete: '=',
+    incomplete: ' ',
+    width: 20,
+    total: images.length
+  });
+}
+
+function updateProgressBar() {
+  bar.tick();
+}
+
+report.on("init", function (raw) {
+  if (raw.length === 0) {
+    console.log("No images found");
+    process.exit(1);
+  }
+  if (program.html) {
+    report.on("end", createHtmlReport);
+  }
+
+  if (program.json) {
+    report.on("end", createJsonReport);
+  }
+
+  if (!program.html && !program.json) {
+    report.on("image", log);
+  }
+
+  if (program.html || program.json) {
+    createProgressBar(raw);
+    report.on("image", updateProgressBar);
+  }
+});
+
+report.on("image", images.push.bind(images));
+report.on("error", handleError);
+
+report.run();

@@ -1,0 +1,64 @@
+doctype html
+html(lang="en")
+  head
+    title="Images"
+    style.
+      body {
+        font-family: "Helvetica Neue", sans-serif;
+        font-size: 14px;
+        font-weight: 300;
+      }
+      .wrapper {
+        margin: auto;
+        width: 900px;
+      }
+      h1 {
+        font-size: 42px;
+        font-weight: 100;
+        text-align: center;
+      }
+      th {
+        font-size: 16px;
+        font-weight: 400;
+      }
+      th.image {
+        width: 350px;
+      }
+      th.read-text {
+        width: 225px
+      }
+      th.alt-text {
+        width: 225px
+      }
+      th.state {
+        width: 100px;
+      }
+      td {
+        text-align: center;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        max-width: 400px;
+      }
+      td.image {
+        background: rgba(0, 0, 0, 0.1);
+      }
+      img {
+        max-width: 100%;
+      }
+  body
+    .wrapper
+      h1 Altar Report
+      table
+        thead
+          tr
+            th.image="Image"
+            th.read-text="Read Text"
+            th.alt-text="Alt Text"
+            th.state="State"
+        tbody
+          each image in images
+            tr
+              td.image
+                img(src=image.url)
+              td.read-text=image.readText
+              td.alt-text=image.altText
+              td(class="state state-#{image.state}")=image.state.toUpperCase()
